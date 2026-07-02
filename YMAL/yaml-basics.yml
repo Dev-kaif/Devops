@@ -29,7 +29,10 @@ null_value_short: ~
 date_only: 14-02-26
 date_time: 14-02-26 08:44:01
 
-# array/list
+# List / Array (Flow Style)
+list: [value1, value3, 44, false]
+
+# List / Array (Block Style)
 mixed_type_array:
   - value1
   - value2
@@ -56,6 +59,9 @@ objects_with_values:
 person:
   name: Manu
   occupation: Developer
+
+# Dictionary (Flow Style)
+person2: { name: Manu, occupation: Developer }
 
 # Nested Dictionary
 recipe:
@@ -86,7 +92,7 @@ evening_chai:
   time: 10
 
 # Explicit Type Tags
-zip_code: !!str 294009cd 
+zip_code: !!str 294009cd
 count: !!int "123"
 
 # Set
@@ -94,4 +100,3 @@ unique_values: !!set
   ? "123"
   ? 435435
   ? tea
-
