@@ -1,0 +1,97 @@
+plain_string: this
+double_quoted_string: "this"
+single_quoted_string: "this"
+
+literal_block_string: |
+  Feeee
+  'loool'
+  "MMMMMM"
+
+folded_block_string: >
+  Feeee 'loool' "MMMMMM"
+
+# there are more num values here's few ex:
+integer_value: 33
+hexadecimal_value: 0xff22ff
+
+boolean_true: true
+boolean_false: false
+
+boolean_on: on
+boolean_off: off
+
+boolean_yes: yes
+boolean_no: no
+
+null_value: null
+null_value_short: ~
+
+date_only: 14-02-26
+date_time: 14-02-26 08:44:01
+
+# array/list
+mixed_type_array:
+  - value1
+  - value2
+  - 200
+  - true
+
+# nested list/array
+objects_with_values:
+  - name: First
+    values:
+      - First-value-1
+      - First-value-2
+      - First-value-3
+      - First-value-4
+
+  - name: Second
+    values:
+      - Second-value-1
+      - Second-value-2
+      - Second-value-3
+      - Second-value-4
+
+# Dictionary
+person:
+  name: Manu
+  occupation: Developer
+
+# Nested Dictionary
+recipe:
+  chai:
+    type: Masala Tea
+    ingredients:
+      ginger: 1_inch
+      milk: 2_cups
+      water: 1_cup
+    method:
+      step1: Boil Water
+      step2: Add Milk
+
+# Anchor
+default_settings: &default_base
+  water: 50ml
+  tea: black
+  time: 5
+
+# Alias + Merge Key
+morning_chai:
+  <<: *default_base
+  milk: 200ml
+
+evening_chai:
+  <<: *default_base
+  milk: 400ml
+  time: 10
+
+# Explicit Type Tags
+zip_code: !!str 294009cd 
+count: !!int "123"
+
+# Set
+unique_values: !!set
+  ? "123"
+  ? 435435
+  ? tea
+
