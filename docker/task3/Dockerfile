@@ -14,19 +14,20 @@ FROM node:22-alpine AS Production
 
 WORKDIR /app
 
-# COPY --from=builder /app/node_modules /app/node_modules
-
+# Change ownership of copied package files from the default root user
+# to the built-in node user and node group
 COPY --chown=node:node package*.json .
 
 RUN npm ci --omit=dev
 
 COPY --from=builder --chown=node:node /app/dist /app/dist
 
-USER node
-
 ENV NODE_ENV=production
 
 EXPOSE 4000
+
+# Run the application process as the built-in non-root node user
+USER node
 
 HEALTHCHECK \
     --interval=30s \
