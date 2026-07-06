@@ -1,0 +1,2 @@
+docker build -t dashboard-app:2.0 .
+docker run -d --name=dashboard-prod -p 8080:80 dashboard-app:2.0
