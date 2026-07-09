@@ -1,0 +1,117 @@
+# Define all application services
+services:
+  # MongoDB database service
+  mongodb-try:
+    # Explicit container name
+    container_name: mongo
+
+    # Image used to create the container
+    image: mongo:latest
+
+    # Map host port 27017 to container port 27017
+    ports:
+      - "27017:27017"
+
+    # Compose creates a default network automatically
+    # Explicit networks allow controlled service communication and isolation
+    networks:
+      - backend-network
+
+    # Environment variables passed to the MongoDB container
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+
+    # Periodically check whether MongoDB is healthy and ready to respond
+    healthcheck:
+      # Run this command inside the MongoDB container
+      # Exit code 0 = healthy, non-zero = unhealthy
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--username",
+          "admin",
+          "--password",
+          "secret",
+          "--authenticationDatabase",
+          "admin",
+          "--eval",
+          "db.adminCommand('ping')",
+        ]
+      interval: 10s     # Run the health check every 10 seconds
+      timeout: 5s       # Fail an individual check if it takes longer than 5 seconds
+      retries: 5        # Mark the container unhealthy after 5 consecutive failures
+      start_period: 10s # Give MongoDB 10 seconds of startup grace time
+
+    volumes:
+      # Persist MongoDB data by mounting the Docker-managed named volume
+      # `mongodb-data` at `/data/db` inside the container
+      - mongodb-data:/data/db
+
+    # if continer is down for some reasone it will restart it on given contdition
+    restart: unless-stopped # no / always / on-failure
+
+  # Web-based MongoDB administration interface
+  mongo-express-try:
+    container_name: mongo-express
+    image: mongo-express:latest
+    restart: "no"
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:secret@mongo:27017/?authSource=admin
+    networks:
+      - backend-network
+    # Start this service after the MongoDB service starts
+    depends_on:
+      # Wait until the MongoDB service becomes healthy
+      mongodb-try: 
+        condition: service_healthy
+
+  # Custom application service
+  myCustomAppImage:
+    container_name: myapp
+
+    # Build the image using the Dockerfile from the current directory
+    build: .
+    restart: on-failure
+
+    networks:
+      - backend-network
+      - frontend-network
+
+    environment:
+      # Resolve these values through Compose variable interpolation
+      # Values can come from sources such as the current shell environment
+
+      # Example:
+      # export MONGO_ADMIN_USERNAME=admin
+      # export MONGO_ADMIN_PASSWORD=secret
+
+      # Only variables explicitly referenced here are passed
+      # into the container under these environment variable names
+      MONGO_USERNAME: ${MONGO_ADMIN_USERNAME}
+      MONGO_PASSWORD: ${MONGO_ADMIN_PASSWORD}
+
+    volumes:
+      # Bind mount local source code into the container for development
+      # Changes in ./src are reflected inside /app/src
+      - ./src:/app/src
+
+    # another way of defining dependent
+    depends_on:
+      - mongodb-try
+
+# Declare Docker-managed named volumes used by services
+volumes:
+  # Persistent storage used by the MongoDB service
+  mongodb-data:
+  # Optional explicit configuration:
+  # mongodb-data:
+  #   driver: local
+
+networks:
+  frontend-network:
+  backend-network:
