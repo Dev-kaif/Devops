@@ -60,8 +60,16 @@ services:
     restart: "no"
     ports:
       - "8081:8081"
-    environment:
-      - ME_CONFIG_MONGODB_URL=mongodb://admin:secret@mongo:27017/?authSource=admin
+
+    # Inject all variables from `app.env` directly into the container
+    # No `environment:` mapping is needed unless you want to add or override values
+    env_file:
+      - ./app.env
+      
+    # Don't need to do this
+    # environment:
+    #   - ME_CONFIG_MONGODB_URL=mongodb://admin:secret@mongo:27017/?authSource=admin
+
     networks:
       - backend-network
     # Start this service after the MongoDB service starts
@@ -83,18 +91,19 @@ services:
       - frontend-network
 
     environment:
-      # Resolve these values through Compose variable interpolation
-      # Values can come from sources such as the current shell environment
+      # Resolve values through Compose variable interpolation
+      # Compose automatically reads the `.env` file from the project directory
+      # and uses its values to replace the referenced `${VARIABLE}` expressions
 
-      # Example:
-      # export MONGO_ADMIN_USERNAME=admin
-      # export MONGO_ADMIN_PASSWORD=secret
+      # Example `.env` file:
+      # MONGO_ADMIN_USERNAME=admin
+      # MONGO_ADMIN_PASSWORD=secret
 
-      # Only variables explicitly referenced here are passed
-      # into the container under these environment variable names
+      # The `.env` values are mapped to environment variables
+      # with these names inside the container
       MONGO_USERNAME: ${MONGO_ADMIN_USERNAME}
       MONGO_PASSWORD: ${MONGO_ADMIN_PASSWORD}
-
+      
     volumes:
       # Bind mount local source code into the container for development
       # Changes in ./src are reflected inside /app/src
