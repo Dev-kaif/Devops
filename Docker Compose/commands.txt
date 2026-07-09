@@ -1,0 +1,59 @@
+# Create and start all services
+docker compose up
+
+# Create and start all services in detached/background mode
+docker compose up -d
+
+# Rebuild images before starting services
+docker compose up -d --build
+
+# Stop and remove containers and Compose networks
+docker compose down
+
+# Stop and remove containers, networks, and named volumes
+docker compose down -v
+
+# List running services
+docker compose ps
+
+# List running and stopped services
+docker compose ps -a
+
+# Stop services without removing containers
+docker compose stop
+
+# Start previously stopped service containers
+docker compose start
+
+# Restart services
+docker compose restart
+
+# Show logs from all services
+docker compose logs
+
+# Show logs for a specific SERVICE
+docker compose logs <container name>
+
+# Follow logs in real time
+docker compose logs -f
+
+# Follow logs for one SERVICE
+docker compose logs -f <container name>
+
+# Execute a command inside a running SERVICE container
+docker compose exec <container name> <terminal command>
+
+# Open a shell inside a running SERVICE container
+docker compose exec myCustomAppImage sh
+
+# Build services that define `build:`
+docker compose build
+
+# Pull newer versions of service images
+docker compose pull
+
+# Show the fully resolved and validated Compose configuration
+docker compose config
+
+# List Compose projects
+docker compose ls
