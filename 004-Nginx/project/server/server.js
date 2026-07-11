@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 const PORT = 3000;
-const INDEX_FILE = path.join(__dirname, "./index.html");
+const INDEX_FILE = path.join(__dirname, "./html/index.html");
 
 const appName = process.env.APP_NAME;
 

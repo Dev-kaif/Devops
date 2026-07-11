@@ -2,9 +2,9 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY server.js .
-COPY index.html .
+COPY /server /server
+COPY /html /html
 
 EXPOSE 3000
 
-CMD [ "node","server.js" ]
+CMD [ "node","server/server.js" ]
