@@ -6,7 +6,7 @@ services:
   frontend:
     # Name/tag of the image produced after the build
     image: frontend-app:1.0
-    
+
     build:
       # Directory sent to Docker during the build
       # Docker looks for a Dockerfile inside this directory
@@ -22,20 +22,8 @@ services:
       # Build-time variables available as Dockerfile ARGs
       args:
         VITE_API_URL: https://api.example.com
-        NODE_VERSION: 22
-
-      # Always check for newer versions of base images
-      pull: true
-
-  # Backend application
-  backend:
-    image: backend-api:2.0
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-      target: production
-      args:
-        NODE_ENV: production
+        NODE_VERSION:
+          22
 
       # Additional build contexts
       # Used when another directory, Git repository or service
@@ -45,3 +33,13 @@ services:
         # Can be referenced inside the Dockerfile as:
         # FROM shared_base
         shared_base: ./shared
+      
+      # Always check for newer versions of base images
+      pull: true
+
+  # Backend application
+  backend:
+    image: backend-api:2.0
+
+    # you can just do it this way as well
+    build: .
