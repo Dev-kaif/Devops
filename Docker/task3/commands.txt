@@ -1,0 +1,2 @@
+docker build -t orders-api:3.0 .
+docker run -d --name=orders-api-prod -p 9000:4000 orders-api:3.0

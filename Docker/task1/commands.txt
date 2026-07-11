@@ -1,0 +1,2 @@
+docker build -t user-api:1.0 .
+docker run -d --name=user-api-prod -p 8080:3000 user-api:1.0

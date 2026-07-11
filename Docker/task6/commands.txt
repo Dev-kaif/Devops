@@ -1,0 +1,7 @@
+docker build -t customer-portal:6.0 \
+    --build-arg VITE_API_URL=https://api.example.com .
+
+docker run -d --name=customer-portal-prod -p 9700:7000 \
+    -e DATABASE_URL='postgresql://app:secret@db.example.com:5432/customers' \
+    -e JWT_SECRET='asacsas' \
+    customer-portal:6.0
