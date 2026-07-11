@@ -6,6 +6,18 @@ The repository is organized by concepts making it easier to understand and revis
 
 ---
 
+# Practice with Real Docker Compose Projects
+
+After completing this reference, read and analyze real-world Compose files.
+
+Repository:
+
+```text
+https://github.com/docker/awesome-compose
+```
+
+---
+
 # Learning Roadmap
 
 ## 01 - Basics
