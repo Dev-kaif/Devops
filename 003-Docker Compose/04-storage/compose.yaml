@@ -22,11 +22,12 @@ services:
     volumes:
       # Short syntax for a BIND mount.
       # Format:
-      # HOST_PATH:CONTAINER_PATH
+      # HOST_PATH:CONTAINER_PATH:permissions
+      # permissions- ro (read only), rw(read write)
 
       # Changes on the host are immediately reflected
       # inside the container.
-      - ./src:/app/src
+      - ./src:/app/src:ro
 
     # Equivalent long syntax.
     # Useful when additional configuration such as read_only is required.

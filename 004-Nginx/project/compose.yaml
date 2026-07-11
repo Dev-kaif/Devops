@@ -1,0 +1,86 @@
+name: myapp
+
+services:
+  app1:
+    build: .
+    # image: node-site:latest
+
+    # Environment variable used by the application
+    # to identify which backend handled the request.
+    environment:
+      - APP_NAME=App1
+
+    # Expose the application on localhost:3001
+    # while the container listens on port 3000.
+    ports:
+      - "3001:3000"
+
+  app2:
+    build: .
+    # image: node-site:latest
+    environment:
+      - APP_NAME=App2
+    ports:
+      - "3002:3000"
+
+  app3:
+    build: .
+    # image: node-site:latest
+    environment:
+      - APP_NAME=App3
+    ports:
+      - "3003:3000"
+
+  nginx-server:
+    image: nginx:latest
+
+    ports:
+      # Publish the HTTPS port.
+      # Nginx listens on port 443 inside the container,
+      # and the same port is exposed on the host.
+      - "443:443"
+
+    volumes:
+      # Mount the custom Nginx configuration file.
+      # `:ro` makes the mount read-only so the container
+      # cannot modify the file on the host.
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+      # Local SSL certificates generated with OpenSSL.
+      # Used mainly for local development/testing.
+      - ./nginx-cert:/etc/nginx/ssl:ro
+
+      # Shared volume where Certbot stores
+      # production SSL certificates.
+      - letsencrypt-data:/etc/letsencrypt
+
+      # Shared webroot used for the ACME HTTP-01 challenge.
+      # Nginx serves files from this directory so Certbot
+      # can prove domain ownership.
+      - certbot-webroot:/var/www/certbot
+
+    # Ensure backend containers are started
+    # before the Nginx container starts.
+    depends_on:
+      - app1
+      - app2
+      - app3
+
+  certbot-manager:
+    image: certbot/certbot:nightly
+
+    volumes:
+      # Store generated certificates in a shared volume
+      # so Nginx can access them.
+      - letsencrypt-data:/etc/letsencrypt
+
+      # Shared directory used during the
+      # ACME HTTP-01 verification process.
+      - certbot-webroot:/var/www/certbot
+
+volumes:
+  # Persistent storage for SSL certificates.
+  letsencrypt-data:
+
+  # Shared directory for Certbot's HTTP-01 challenge files.
+  certbot-webroot:
