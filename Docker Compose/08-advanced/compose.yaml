@@ -1,0 +1,62 @@
+name: compose-runtime
+
+services:
+  backend:
+    image: node:22-alpine
+
+    # Override the default command defined by the image.
+    
+    # Similar to:
+    # docker run <image> npm start
+    
+    # `command` replaces only the image's CMD.
+    command:
+      - npm
+      - start
+
+    # Set the default working directory inside the container.
+    # Similar to:
+    # docker run -w /app
+    # All relative paths used by command/entrypoint
+    # start from this directory.
+    working_dir: /app
+
+    restart: unless-stopped
+
+
+  # Background Worker
+  worker:
+    image: node:22-alpine
+
+    # Override the image ENTRYPOINT.
+    # Unlike `command`, ENTRYPOINT defines the executable that always runs when the container starts.
+    entrypoint:
+      - npm
+
+    # Arguments passed to the ENTRYPOINT.
+    # Final command becomes: npm run worker
+    command:
+      - run
+      - worker
+
+    restart: on-failure
+
+
+  # Development Service
+  development:
+    image: node:22-alpine
+    command:
+      - npm
+      - run
+      - dev
+
+    # Start this service only when the
+    # specified profile is enabled.
+    profiles:
+      - development
+
+  # Monitoring Stack
+  monitoring:
+    image: grafana/grafana
+    profiles:
+      - monitoring

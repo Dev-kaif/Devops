@@ -1,0 +1,78 @@
+# Compose project name
+name: compose-networking
+
+services:
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+
+    # Compose automatically creates a default network.
+    # Explicit networks allow services to communicate only
+    # with other services connected to the same network.
+    networks:
+      - frontend-network
+
+    # Short syntax
+    # Start this service after the backend service starts.
+    # This does NOT wait for the backend to become ready.
+    depends_on:
+      - backend
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+
+    # Makes the container port available only to other containers on the same Docker network.
+    # Unlike `ports`, this does NOT publish the port to the host.
+    expose:
+      - "3000"
+
+    # A service can belong to multiple networks.
+    # This allows it to communicate with services
+    # on both frontend and backend networks.
+    networks:
+      - frontend-network
+      - backend-network
+
+    # Long syntax
+    # Wait until MongoDB passes its health check.
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  # MongoDB
+  mongodb:
+    image: mongo:latest
+
+    networks:
+      - backend-network
+
+    # Periodically check whether MongoDB is healthy.
+    # Docker executes the command below inside the container.
+    healthcheck:
+      # Exit code 0  -> healthy
+      # Non-zero     -> unhealthy
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Mongo Express
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    networks:
+      - backend-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+# Declare application networks
+networks:
+  frontend-network:
+  backend-network:

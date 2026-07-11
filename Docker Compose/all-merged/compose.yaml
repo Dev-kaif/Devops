@@ -1,3 +1,16 @@
+name: mySystem
+
+# Include and merge multiple Compose files into a single Compose application
+include:
+  - ./commons/compose.yaml
+  - ./another_domain/compose.yaml
+
+# include:
+#    - path: ../another/compose.yaml
+#      env_file:
+#        - ../another/.env
+#        - ../another/dev.env
+
 # Define all application services
 services:
   # MongoDB database service
@@ -40,9 +53,9 @@ services:
           "--eval",
           "db.adminCommand('ping')",
         ]
-      interval: 10s     # Run the health check every 10 seconds
-      timeout: 5s       # Fail an individual check if it takes longer than 5 seconds
-      retries: 5        # Mark the container unhealthy after 5 consecutive failures
+      interval: 10s # Run the health check every 10 seconds
+      timeout: 5s # Fail an individual check if it takes longer than 5 seconds
+      retries: 5 # Mark the container unhealthy after 5 consecutive failures
       start_period: 10s # Give MongoDB 10 seconds of startup grace time
 
     volumes:
@@ -65,7 +78,7 @@ services:
     # No `environment:` mapping is needed unless you want to add or override values
     env_file:
       - ./app.env
-      
+
     # Don't need to do this
     # environment:
     #   - ME_CONFIG_MONGODB_URL=mongodb://admin:secret@mongo:27017/?authSource=admin
@@ -75,15 +88,22 @@ services:
     # Start this service after the MongoDB service starts
     depends_on:
       # Wait until the MongoDB service becomes healthy
-      mongodb-try: 
-        condition: service_healthy
+      mongodb-try:
+        condition: service_healthy # or service_started
 
   # Custom application service
   myCustomAppImage:
     container_name: myapp
+    
+    # Build the image from the Dockerfile in the current directory
+    build:
+      # Directory used as the Docker build context
+      context: .
 
-    # Build the image using the Dockerfile from the current directory
-    build: .
+      # Build only the `service_a` stage from a multi-stage Dockerfile
+      # Without `target`, Docker builds the final stage by default
+      target: service_a
+
     restart: on-failure
 
     networks:
@@ -103,11 +123,39 @@ services:
       # with these names inside the container
       MONGO_USERNAME: ${MONGO_ADMIN_USERNAME}
       MONGO_PASSWORD: ${MONGO_ADMIN_PASSWORD}
-      
+
+    # used to run command inside the conatiner
+    command: ["echo", "i am here"]
+
     volumes:
       # Bind mount local source code into the container for development
       # Changes in ./src are reflected inside /app/src
+
+      # Short syntax
       - ./src:/app/src
+
+    # Equivalent long syntax with additional configuration options
+    # Useful when you need options such as read_only, consistency, etc.
+    # volumes:
+    #   - type: bind
+    #     source: ./src
+    #     target: /app/src
+    #     read_only: true
+
+    # annotations used for defining metadata attached to a container or service
+    # for external tools and humans to read
+    # They do not affect how your application runs.
+    # map from
+    annotations:
+      owner: kaif
+      project: notifications-api
+      environment: production
+
+    # List form
+    # annotations:
+    #   - owner=kaif
+    #   - team=backend
+    #   - project=notifications-api
 
     # another way of defining dependent
     depends_on:

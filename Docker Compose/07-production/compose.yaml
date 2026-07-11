@@ -1,0 +1,50 @@
+name: compose-production
+
+# Merge multiple Compose files into a single Compose application.
+include:
+  - ./monitoring/compose.yaml
+  - ./logging/compose.yaml
+
+services:
+  backend:
+    image: backend-api:latest
+
+    # Labels are metadata attached to Docker resources.
+    # They are commonly used by tools for filtering,
+    # automation and service discovery.
+    labels:
+      app: backend
+      team: platform
+      environment: production
+
+    # Annotations are metadata intended for humans
+    # and external tools.
+    # They do not affect how your application runs.
+    annotations:
+      owner: kaif
+      documentation: https://company.internal/backend
+      environment: production
+
+    # Mount Docker-managed secrets into the container.
+    # Unlike environment variables, secrets are stored
+    # as files inside the container.
+    secrets:
+      - db_password
+
+    # Configure container logging.
+    logging:
+      driver: json-file
+
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+    # Resource limits.
+    mem_limit: 2g
+    cpus: 2
+
+# Declare application secrets.
+secrets:
+
+  db_password:
+    file: ./secrets/db_password.txt

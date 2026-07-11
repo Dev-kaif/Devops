@@ -1,0 +1,49 @@
+# Compose project name
+# Groups all Compose resources (containers, networks, volumes, etc.)
+# under a single project.
+name: compose-basics
+
+# Define all application services
+services:
+
+  # Nginx Web Server
+  nginx-server:
+
+    # Optional custom container name
+    # If omitted, Compose automatically generates one
+    container_name: nginx-demo
+
+    # Use an existing image from a container registry
+    # (Docker Hub by default)
+    image: nginx:alpine
+
+    # Publish container ports to the host machine
+    # Format:
+    # HOST_PORT : CONTAINER_PORT
+    ports:
+      - "8080:80"
+
+
+  # Custom Node.js Application
+  node-api:
+    container_name: node-api
+
+    # Build an image from a Dockerfile
+    build:
+      # Directory sent to Docker as the build context
+      # Docker searches for a Dockerfile in this directory
+      # unless another Dockerfile is explicitly specified
+      context: .
+
+    # A service can publish multiple ports
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+
+
+  # Redis Cache
+  redis-cache:
+    container_name: redis
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"

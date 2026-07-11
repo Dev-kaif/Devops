@@ -1,0 +1,46 @@
+# Compose project name
+name: compose-build
+
+services:
+  # Frontend application
+  frontend:
+    # Name/tag of the image produced after the build
+    image: frontend-app:1.0
+    build:
+      # Directory sent to Docker during the build
+      # Docker looks for a Dockerfile inside this directory
+      context: ./frontend
+
+      # Use a custom Dockerfile instead of the default `Dockerfile`
+      dockerfile: Dockerfile.prod
+
+      # Build only the specified stage from a multi-stage Dockerfile
+      # Without `target`, Docker builds the final stage by default
+      target: production
+
+      # Build-time variables available as Dockerfile ARGs
+      args:
+        VITE_API_URL: https://api.example.com
+        NODE_VERSION: 22
+
+      # Always check for newer versions of base images
+      pull: true
+
+  # Backend application
+  backend:
+    image: backend-api:2.0
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        NODE_ENV: production
+
+      # Additional build contexts
+      # Used when another directory, Git repository or service
+      # should be available during the build
+      # Advanced feature used in large projects
+      additional_contexts:
+        # Can be referenced inside the Dockerfile as:
+        # FROM shared_base
+        shared_base: ./shared

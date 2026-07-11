@@ -1,0 +1,47 @@
+name: compose-advanced
+
+services:
+  api:
+    image: backend-api:latest
+
+    build:
+      context: .
+
+      # Build the image for one or more CPU architectures.
+      # Commonly used with Docker Buildx to create
+      # multi-platform images.
+      platforms:
+        - linux/amd64
+
+      # Import build cache from an existing image.
+      # Commonly used in CI/CD pipelines.
+      cache_from:
+        - backend-api:latest
+
+      # Export build cache for future builds.
+      # Primarily used with BuildKit.
+      cache_to:
+        - type=inline
+
+    # Override the hostname inside the container.
+    hostname: backend-api
+
+    # Allocate a pseudo terminal.
+    # Useful for interactive containers.
+    tty: true
+
+    # Keep STDIN open even when not attached.
+    stdin_open: true
+
+    networks:
+      default:
+        # Additional DNS names for this service
+        # on the Docker network.
+        aliases:
+          - api
+          - backend
+
+    # Mount a temporary filesystem (RAM).
+    # Data is lost when the container stops.
+    tmpfs:
+      - /tmp

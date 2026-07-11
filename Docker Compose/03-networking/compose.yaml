@@ -1,0 +1,57 @@
+name: compose-storage
+
+services:
+  mongodb:
+    image: mongo:latest
+
+    # Mount storage inside the container.
+    volumes:
+      # Short syntax for a Docker-managed named volume.
+      # Format:
+      # VOLUME_NAME:CONTAINER_PATH
+
+      # Docker creates and manages the volume automatically.
+      # Data persists even if the container is removed.
+      - mongodb-data:/data/db
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+
+    volumes:
+      # Short syntax for a BIND mount.
+      # Format:
+      # HOST_PATH:CONTAINER_PATH
+
+      # Changes on the host are immediately reflected
+      # inside the container.
+      - ./src:/app/src
+
+    # Equivalent long syntax.
+    # Useful when additional configuration such as read_only is required.
+
+    # volumes:
+    #   - type: bind
+    #     source: ./src
+    #     target: /app/src
+    #     read_only: true
+
+  # Redis Cache
+  redis:
+    image:
+      redis:alpine
+
+    # Long syntax for a Docker-managed named volume.
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
+
+# Declare Docker-managed named volumes.
+
+# Docker creates these automatically
+# when running `docker compose up`.
+volumes:
+  mongodb-data:
+  redis-data:

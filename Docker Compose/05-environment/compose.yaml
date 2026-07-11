@@ -1,0 +1,50 @@
+name: compose-environment
+
+services:
+  backend:
+    image: node:22-alpine
+
+    # Define environment variables explicitly.
+    # Compose automatically reads the `.env` file
+    # from the project directory and replaces
+    # `${VARIABLE}` with its value.
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+   
+    command:
+      - env
+
+
+  # Mongo Express
+  mongo-express:
+    image: mongo-express:latest
+
+    # Inject environment variables directly
+    # from a file into the container.
+    
+    # Unlike `.env`, Compose does NOT use this
+    # file for variable interpolation.
+    env_file:
+      - ./app.env
+
+    command:
+      - env
+
+
+  # Worker
+  worker:
+    image: alpine
+
+    # Both approaches can be combined.
+    # Variables defined under `environment`
+    # override variables loaded from `env_file`.
+    env_file:
+      - ./app.env
+
+    environment:
+      APP_MODE: production
+    command:
+      - env
