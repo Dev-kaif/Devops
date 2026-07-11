@@ -2,7 +2,7 @@
 
 A structured reference for learning Docker Compose from the ground up.
 
-The repository is organized by concepts instead of one large `compose.yaml` file, making it easier to understand and revisit specific topics.
+The repository is organized by concepts making it easier to understand and revisit specific topics.
 
 ---
 

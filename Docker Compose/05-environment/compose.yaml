@@ -1,19 +1,20 @@
 name: compose-environment
 
 services:
+  # Backend API
   backend:
     image: node:22-alpine
 
     # Define environment variables explicitly.
-    # Compose automatically reads the `.env` file
-    # from the project directory and replaces
+    
+    # Compose automatically reads the `.env` file from the project directory and replaces
     # `${VARIABLE}` with its value.
     environment:
       NODE_ENV: production
       PORT: 3000
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
-   
+
     command:
       - env
 
@@ -23,7 +24,7 @@ services:
     image: mongo-express:latest
 
     # Inject environment variables directly
-    # from a file into the container.
+    # into the container from a file.
     
     # Unlike `.env`, Compose does NOT use this
     # file for variable interpolation.
@@ -33,18 +34,40 @@ services:
     command:
       - env
 
-
   # Worker
   worker:
     image: alpine
 
-    # Both approaches can be combined.
-    # Variables defined under `environment`
-    # override variables loaded from `env_file`.
+    # `environment` and `env_file` can be combined.
+    
+    # If the same variable exists in both,
+    # `environment` takes precedence.
     env_file:
       - ./app.env
 
     environment:
       APP_MODE: production
+
     command:
       - env
+
+  # Production API
+  production-api:
+    image: backend-api:latest
+
+    # Mount Docker-managed secrets into the container.
+    
+    # Unlike environment variables, secrets are stored
+    # as files inside the container instead of being
+    # exposed through the process environment.
+    
+    # Useful for passwords, API keys and certificates.
+    secrets:
+      - db_password
+
+# Declare Docker-managed secrets.
+# Each secret is loaded from a file on the host
+# and mounted into the container at runtime.
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt

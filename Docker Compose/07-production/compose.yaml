@@ -26,8 +26,7 @@ services:
       environment: production
 
     # Mount Docker-managed secrets into the container.
-    # Unlike environment variables, secrets are stored
-    # as files inside the container.
+    # Unlike environment variables, secrets are stored as files inside the container.
     secrets:
       - db_password
 

@@ -1,78 +1,57 @@
-# Compose project name
-name: compose-networking
+name: compose-storage
 
 services:
-  frontend:
-    image: nginx:alpine
-    ports:
-      - "8080:80"
+  mongodb:
+    image: mongo:latest
 
-    # Compose automatically creates a default network.
-    # Explicit networks allow services to communicate only
-    # with other services connected to the same network.
-    networks:
-      - frontend-network
+    # Mount storage inside the container.
+    volumes:
+      # Short syntax for a Docker-managed named volume.
+      # Format:
+      # VOLUME_NAME:CONTAINER_PATH
 
-    # Short syntax
-    # Start this service after the backend service starts.
-    # This does NOT wait for the backend to become ready.
-    depends_on:
-      - backend
+      # Docker creates and manages the volume automatically.
+      # Data persists even if the container is removed.
+      - mongodb-data:/data/db
 
   # Backend API
   backend:
     build:
       context: ./backend
 
-    # Makes the container port available only to other containers on the same Docker network.
-    # Unlike `ports`, this does NOT publish the port to the host.
-    expose:
-      - "3000"
+    volumes:
+      # Short syntax for a BIND mount.
+      # Format:
+      # HOST_PATH:CONTAINER_PATH
 
-    # A service can belong to multiple networks.
-    # This allows it to communicate with services
-    # on both frontend and backend networks.
-    networks:
-      - frontend-network
-      - backend-network
+      # Changes on the host are immediately reflected
+      # inside the container.
+      - ./src:/app/src
 
-    # Long syntax
-    # Wait until MongoDB passes its health check.
-    depends_on:
-      mongodb:
-        condition: service_healthy
+    # Equivalent long syntax.
+    # Useful when additional configuration such as read_only is required.
 
-  # MongoDB
-  mongodb:
-    image: mongo:latest
+    # volumes:
+    #   - type: bind
+    #     source: ./src
+    #     target: /app/src
+    #     read_only: true
 
-    networks:
-      - backend-network
+  # Redis Cache
+  redis:
+    image:
+      redis:alpine
 
-    # Periodically check whether MongoDB is healthy.
-    # Docker executes the command below inside the container.
-    healthcheck:
-      # Exit code 0  -> healthy
-      # Non-zero     -> unhealthy
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+    # Long syntax for a Docker-managed named volume.
+    volumes:
+      - type: volume
+        source: redis-data
+        target: /data
 
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+# Declare Docker-managed named volumes.
 
-  # Mongo Express
-  mongo-express:
-    image: mongo-express:latest
-    ports:
-      - "8081:8081"
-    networks:
-      - backend-network
-    depends_on:
-      mongodb:
-        condition: service_healthy
-
-# Declare application networks
-networks:
-  frontend-network:
-  backend-network:
+# Docker creates these automatically
+# when running `docker compose up`.
+volumes:
+  mongodb-data:
+  redis-data:

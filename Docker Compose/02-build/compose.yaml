@@ -6,6 +6,7 @@ services:
   frontend:
     # Name/tag of the image produced after the build
     image: frontend-app:1.0
+    
     build:
       # Directory sent to Docker during the build
       # Docker looks for a Dockerfile inside this directory
