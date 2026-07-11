@@ -1,5 +1,0 @@
-docker build -t payments-api:4.0 .
-
-docker run -d --name=payments-api-prod -p 9500:5000 \
- -e DATABASE_URL=postgresql://app:secret@db.example.com:5432/payments \
- payments-api:4.0

@@ -1,3 +1,0 @@
-docker build -t analytics-api:5.0 .
-
-docker run -d --name=analytics-api-prod -p 9800:8000 analytics-api:5.0
