@@ -1,12 +1,12 @@
 # Nginx Reference
 
-A structured reference for learning **Nginx** from the ground up.
+A structured reference for learning **NGINX** from the ground up.
 
 This repository covers everything from the core architecture to production-ready reverse proxy configurations.
 
 ---
 
-# What is Nginx?
+# What is NGINX?
 
 NGINX (pronounced **Engine-X**) is a high-performance web server that can also act as a:
 
@@ -18,7 +18,21 @@ NGINX (pronounced **Engine-X**) is a high-performance web server that can also a
 - API Gateway (basic)
 - Kubernetes Ingress Controller
 
-Unlike traditional web servers that create a thread/process for every client, Nginx uses an **event-driven, asynchronous architecture**, allowing a small number of worker processes to handle thousands of concurrent connections efficiently.
+Unlike traditional web servers that create a thread or process for every client, NGINX uses an **event-driven, asynchronous architecture**, allowing a small number of worker processes to handle thousands of concurrent connections efficiently.
+
+---
+
+# Architecture
+
+![NGINX Architecture](images/architecture.png)
+
+At a high level:
+
+1. Clients send requests to NGINX.
+2. The **Master Process** manages worker processes.
+3. **Worker Processes** handle thousands of client connections using an event loop.
+4. Requests are forwarded to an **Upstream** (backend server group).
+5. The selected backend processes the request and returns the response through NGINX.
 
 ---
 
@@ -41,26 +55,42 @@ NGINX is commonly used for:
 
 # Request Flow
 
+![NGINX Request Flow](images/request-flow.png)
+
+Typical request lifecycle:
+
 ```text
-                Client (Browser)
-                        │
-                        ▼
-                  ┌────────────┐
-                  │   NGINX    │
-                  └─────┬──────┘
-                        │
-        ┌───────────────┼───────────────┐
-        ▼               ▼               ▼
-   Backend 1       Backend 2       Backend 3
+Client
+   │
+   ▼
+NGINX
+   │
+   ▼
+Server Block
+   │
+   ▼
+Location Block
+   │
+   ▼
+Upstream
+   │
+   ▼
+Backend Server
+   │
+   ▼
+NGINX
+   │
+   ▼
+Client
 ```
 
 Instead of clients communicating directly with backend servers, every request first reaches **NGINX**, which decides where to forward it.
 
 ---
 
-# Why use Nginx?
+# Why use NGINX?
 
-Without Nginx
+Without NGINX
 
 ```text
 Browser
@@ -73,14 +103,15 @@ Browser
 Problems
 
 - No load balancing
-- No centralized SSL
+- No centralized SSL/TLS
 - No request routing
 - No caching
-- Larger attack surface
+- Backend servers are directly exposed
+- Harder to scale
 
 ---
 
-With Nginx
+With NGINX
 
 ```text
 Browser
@@ -96,11 +127,13 @@ API1 API2 API3
 Benefits
 
 - Single entry point
+- Reverse proxy
 - Load balancing
 - HTTPS termination
 - Better security
 - Centralized routing
 - Easier scaling
+- Backend servers remain hidden
 
 ---
 
@@ -108,15 +141,15 @@ Benefits
 
 ![Algorithms](images/algorithms.png)
 
-Common algorithms include:
+NGINX supports multiple load balancing strategies.
 
-- Round Robin *(default)*
-- Least Connections
-- IP Hash
-- Weighted Round Robin
-- Weighted Least Connections
-
-Each algorithm is suited for different traffic patterns and server capacities.
+| Algorithm | Best Used For |
+|-----------|---------------|
+| Round Robin *(default)* | Servers with similar capacity |
+| Least Connections | Servers processing requests at different speeds |
+| IP Hash | Sticky sessions / Session persistence |
+| Weighted Round Robin | Servers with different hardware capacities |
+| Weighted Least Connections | Dynamic workloads with unequal server capacity |
 
 ---
 
@@ -125,114 +158,36 @@ Each algorithm is suited for different traffic patterns and server capacities.
 ```text
 .
 ├── README.md
+├── COMMANDS.md
+├── nginx-reference.conf
 │
-├── 01-basics/
-├── 02-reverse-proxy/
-├── 03-load-balancing/
-├── 04-static-files/
-├── 05-https/
-├── 06-security/
-├── 07-production/
-└── 08-commands/
+├── images
+│   ├── architecture.png
+│   ├── request-flow.png
+│   ├── functionalities.png
+│   └── algorithms.png
+│
+└── project
+    └── nginx-cert
 ```
-
-Each folder contains:
-
-- `README.md`
-- `nginx.conf`
-- Example configurations
-
-Every concept is explained only once when first introduced.
 
 ---
 
-# Learning Roadmap
+# What's Covered
 
-## 01 - Basics
-
-Topics
-
-- Directives
-- Contexts
+- NGINX Architecture
+- Directives & Contexts
 - Worker Processes
 - Worker Connections
 - MIME Types
-
----
-
-## 02 - Reverse Proxy
-
-Topics
-
-- `proxy_pass`
-- `proxy_set_header`
-- Request Headers
-- Response Flow
-
----
-
-## 03 - Load Balancing
-
-Topics
-
-- `upstream`
-- Round Robin
-- Least Connections
-- IP Hash
-- Weighted Algorithms
-
----
-
-## 04 - Static Files
-
-Topics
-
-- `root`
-- `alias`
-- `index`
-- `try_files`
-- MIME Types
-
----
-
-## 05 - HTTPS
-
-Topics
-
+- Upstreams
+- Reverse Proxy
+- Proxy Headers
+- Load Balancing
 - SSL/TLS
-- Certificates
 - HTTP → HTTPS Redirect
-- TLS Termination
-
----
-
-## 06 - Security
-
-Topics
-
-- Security Headers
-- Gzip
-- Rate Limiting
-- Caching
-- Access Control
-
----
-
-## 07 - Production
-
-Topics
-
-- Logging
-- Timeouts
-- Buffering
-- Performance Tuning
-- Best Practices
-
----
-
-## 08 - Commands
-
-Useful Nginx CLI commands.
+- Docker Networking
+- Production Best Practices
 
 ---
 

@@ -42,20 +42,43 @@ Track my progress from Docker to production-grade infrastructure.
 
 ### Nginx
 
-* [ ] Installation
-* [ ] Configuration
-* [ ] Static File Hosting
-* [ ] Reverse Proxy
-* [ ] Load Balancing
-* [ ] SSL / HTTPS
-* [ ] Gzip Compression
-* [ ] Caching
-* [ ] Custom Configuration
-* [ ] Docker + Nginx
-* [ ] React + Nginx
-* [ ] Node.js + Nginx
+#### Core Concepts
+- [x] Installation
+- [x] NGINX Architecture
+- [x] Directives & Contexts
+- [x] Worker Processes & Event Loop
+- [x] MIME Types
 
-**Status:** ⏳ Not Started
+#### Reverse Proxy
+- [x] Server Blocks
+- [x] Location Blocks
+- [x] Reverse Proxy (`proxy_pass`)
+- [x] Proxy Headers (`proxy_set_header`)
+- [x] Upstreams
+- [x] Load Balancing Algorithms
+- [x] HTTP → HTTPS Redirect
+
+#### Security
+- [x] SSL / HTTPS
+- [ ] Security Headers
+- [ ] Rate Limiting
+- [ ] Basic Authentication
+
+#### Performance
+- [ ] Static File Hosting
+- [ ] Gzip Compression
+- [ ] Caching
+
+#### Production
+- [x] Docker + NGINX
+- [ ] React + NGINX
+- [ ] Node.js + NGINX
+- [ ] Logging
+- [ ] Timeouts
+- [ ] WebSockets
+- [ ] Production Best Practices
+
+**Status:** ⏳ Incomplete
 
 ---
 
