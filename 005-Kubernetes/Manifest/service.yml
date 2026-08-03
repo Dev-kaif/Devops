@@ -1,0 +1,60 @@
+apiVersion: v1
+
+# We are creating a Service resource.
+kind: Service
+
+# Metadata stores information about the Service.
+metadata:
+  # Unique name of the Service.
+  name: my-service
+
+  # Namespace where this Service will be created.
+  namespace: default
+
+  # Labels used to identify or group this Service.
+  labels:
+    app: my-app
+
+  # Extra information about this Service.
+  annotations:
+    created-by: kaif
+
+# Spec defines the desired state of the Service.
+spec:
+  # Type of Service.
+  # ClusterIP    -> Accessible only inside the cluster.
+  # NodePort     -> Accessible from outside using <NodeIP>:<NodePort>.
+  # LoadBalancer -> Creates an external load balancer (cloud providers).
+  # ExternalName -> Maps this Service to an external DNS name.
+  type: ClusterIP
+
+  # Selector tells the Service which Pods should receive traffic.
+  # It looks for Pods with these labels.
+  selector:
+    app: my-app
+
+  # List of ports exposed by this Service.
+  ports:
+    # Protocol used for communication.
+    - protocol: TCP
+
+      # Port clients connect to on the Service.
+      port: 80
+
+      # Port on the Pod where the application is listening.
+      targetPort: 3000
+
+      # Required only when type is NodePort.
+      # Must be between 30000-32767.
+      nodePort: 30080
+
+      # Optional name for this port.
+      name: http
+
+  # Keeps client requests going to the same Pod.
+  sessionAffinity: None
+
+  # Controls how traffic is routed.
+  # Cluster -> Routes to Pods on any node.
+  # Local   -> Routes only to Pods on the same node.
+  externalTrafficPolicy: Cluster

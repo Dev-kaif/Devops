@@ -78,7 +78,7 @@ Track my progress from Docker to production-grade infrastructure.
 - [ ] WebSockets
 - [ ] Production Best Practices
 
-**Status:** ⏳ Incomplete
+**Status:** 🔵 Incomplete
 
 ---
 
@@ -134,7 +134,7 @@ Track my progress from Docker to production-grade infrastructure.
 * [ ] Minikube / Kind
 * [ ] kubectl
 
-**Status:** ⏳ Not Started
+**Status:** 🟢 Started
 
 ---
 

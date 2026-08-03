@@ -1,0 +1,171 @@
+apiVersion: apps/v1
+
+# We are creating a Deployment resource.
+kind: Deployment
+
+# Metadata stores information about the Deployment.
+metadata:
+  # Unique name of the Deployment.
+  name: nginx-deployment
+
+  # Labels used to identify this Deployment.
+  labels:
+    app: nginx
+
+# Spec defines the desired state of the Deployment.
+spec:
+  # Desired number of Pod replicas.
+  replicas: 3
+
+  # Selector tells the Deployment which Pods belong to it.
+  # It manages Pods that have these labels.
+  selector:
+    matchLabels:
+      app: nginx
+
+  # Template is the blueprint used to create new Pods.
+  template:
+    # Metadata that will be added to every Pod.
+    metadata:
+      # Labels for every Pod created from this template.
+      # These labels must match the selector above.
+      labels:
+        app: nginx
+
+    # Defines the desired state of every Pod.
+    spec:
+      # Service Account used by this Pod to access the Kubernetes API.
+      serviceAccountName: default
+
+      # Containers that run before the main containers start.
+      # Used for setup work like migrations or downloading files.
+      initContainers:
+        - name: setup
+          image: busybox
+          command: ["sh", "-c", "echo Initializing..."]
+
+      # List of containers that should run in this Pod.
+      containers:
+        - name: nginx
+
+          # Docker image used to create this container.
+          image: nginx:1.14.2
+
+          # Port on which the application listens inside the container.
+          ports:
+            - containerPort: 80
+
+          # Environment variables for the container.
+          # Values can be:
+          # - Hardcoded
+          # - Loaded from a ConfigMap
+          # - Loaded from a Secret
+          env:
+            # Hardcoded value.
+            - name: NODE_ENV
+              value: production
+
+            # Value loaded from a ConfigMap.
+            - name: MONGO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-config
+                  key: mongo-url
+
+            # Value loaded from a Secret.
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-user
+
+          # Import every key from a ConfigMap as environment variables.
+          envFrom:
+            - configMapRef:
+                name: mongo-config
+
+            # Import every key from a Secret as environment variables.
+            - secretRef:
+                name: mongo-secret
+
+          # Override the image's default command.
+          command: ["nginx"]
+
+          # Arguments passed to the command above.
+          args: ["-g", "daemon off;"]
+
+          # Mount storage volumes inside the container.
+          volumeMounts:
+            # Temporary storage.
+            - name: temp-storage
+              mountPath: /tmp
+
+            # Persistent storage.
+            - name: app-storage
+              mountPath: /usr/share/nginx/html
+
+            # Mount a ConfigMap as files.
+            - name: config-volume
+              mountPath: /etc/config
+
+            # Mount a Secret as files.
+            - name: secret-volume
+              mountPath: /etc/secret
+              readOnly: true
+
+          # CPU and memory requested and allowed.
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "128Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+
+          # Restart the container if this health check keeps failing.
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+          # Send traffic only after this check passes.
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          # Controls when Kubernetes pulls the image.
+          # Options: Always | IfNotPresent | Never
+          imagePullPolicy: IfNotPresent
+
+      # Storage that can be mounted by containers in this Pod.
+      volumes:
+        # Temporary storage.
+        # Data is deleted when the Pod is deleted.
+        - name: temp-storage
+          emptyDir: {}
+
+        # Persistent storage.
+        # Data survives Pod deletion.
+        - name: app-storage
+          persistentVolumeClaim:
+            claimName: app-pvc
+
+        # Mount a ConfigMap as files.
+        - name: config-volume
+          configMap:
+            name: mongo-config
+
+        # Mount a Secret as files.
+        - name: secret-volume
+          secret:
+            secretName: mongo-secret
+
+      # What Kubernetes should do if the Pod stops.
+      # Deployments almost always use Always.
+      restartPolicy: Always
