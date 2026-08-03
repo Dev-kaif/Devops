@@ -15,6 +15,7 @@ services:
       DATABASE_HOST: ${DATABASE_HOST}
       DATABASE_PORT: ${DATABASE_PORT}
 
+    # prints env vars in conatiners terminal
     command:
       - env
 
